@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { Wifi, WifiOff, Copy, Check, Trophy, Users, Shuffle, Zap, Sparkles } from 'lucide-react';
 
-const BACKEND_URL = 'http://localhost:3001';
+// CHANGE THIS TO YOUR DEPLOYED BACKEND URL
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
 function DogCard({ dog, isRevealed, onStatSelect, canSelect, selectedStat, isOpponent, winner, isShuffling, isClashing, position }) {
   const stats = [
@@ -38,7 +39,6 @@ function DogCard({ dog, isRevealed, onStatSelect, canSelect, selectedStat, isOpp
         <div className="absolute inset-0 bg-gradient-to-br from-amber-700 via-amber-600 to-amber-800 rounded-2xl p-1.5">
           <div className="bg-gradient-to-b from-amber-50 to-white rounded-xl h-full flex flex-col overflow-hidden relative">
             
-            {/* Sparkle effect for winner */}
             {winner === 'win' && (
               <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
                 <Sparkles className="absolute top-4 right-4 text-yellow-400 animate-spin-slow" size={24} />
@@ -47,7 +47,6 @@ function DogCard({ dog, isRevealed, onStatSelect, canSelect, selectedStat, isOpp
               </div>
             )}
 
-            {/* Header */}
             <div className="bg-gradient-to-r from-rose-600 via-red-600 to-rose-600 text-white px-4 py-3 shadow-lg relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
               <h3 className="font-bold text-center text-xl truncate relative z-10">
@@ -58,7 +57,6 @@ function DogCard({ dog, isRevealed, onStatSelect, canSelect, selectedStat, isOpp
               </p>
             </div>
 
-            {/* Image Area */}
             <div className="relative h-44 bg-gradient-to-br from-sky-100 via-blue-50 to-emerald-50 flex items-center justify-center overflow-hidden border-b-4 border-amber-700">
               {isRevealed || !isOpponent ? (
                 <div className="relative">
@@ -75,7 +73,6 @@ function DogCard({ dog, isRevealed, onStatSelect, canSelect, selectedStat, isOpp
               )}
             </div>
 
-            {/* Stats */}
             <div className="flex-1 p-3 space-y-2 bg-gradient-to-b from-white to-amber-50/30">
               {stats.map((stat) => (
                 <button
@@ -136,7 +133,9 @@ export default function TopTrumpsGame() {
   const [readyToFight, setReadyToFight] = useState(false);
 
   useEffect(() => {
-    const newSocket = io(BACKEND_URL);
+    const newSocket = io(BACKEND_URL, {
+      transports: ['websocket', 'polling']
+    });
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
@@ -170,7 +169,6 @@ export default function TopTrumpsGame() {
       console.log('Game started:', data);
       setIsShuffling(true);
       
-      // Shuffle animation
       setTimeout(() => {
         setMyDeck(data.myDeck);
         setOpponentDeckCount(data.opponentDeck.length);
@@ -193,7 +191,6 @@ export default function TopTrumpsGame() {
       setCardsRevealed(true);
       setShowFightButton(false);
       
-      // Clash animation
       setTimeout(() => {
         setIsClashing(true);
         setTimeout(() => {
@@ -312,7 +309,6 @@ export default function TopTrumpsGame() {
   if (screen === 'menu') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4 relative overflow-hidden">
-        {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-20 text-6xl opacity-20 animate-float">🐕</div>
           <div className="absolute top-40 right-32 text-5xl opacity-20 animate-float-delayed">🐾</div>
@@ -458,7 +454,6 @@ export default function TopTrumpsGame() {
   if (screen === 'game') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-900 to-cyan-900 p-6 relative overflow-hidden">
-        {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
           <div className="absolute top-10 left-10 text-9xl animate-float">🐾</div>
           <div className="absolute top-1/4 right-20 text-8xl animate-float-delayed">🦴</div>
@@ -466,7 +461,6 @@ export default function TopTrumpsGame() {
         </div>
 
         <div className="max-w-7xl mx-auto relative z-10">
-          {/* Header */}
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 mb-8 border-4 border-amber-300">
             <div className="flex justify-between items-center flex-wrap gap-4">
               <div className="flex items-center gap-6">
@@ -500,7 +494,6 @@ export default function TopTrumpsGame() {
             </div>
           </div>
 
-          {/* Shuffling Screen */}
           {isShuffling && (
             <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm">
               <div className="text-center">
@@ -515,7 +508,6 @@ export default function TopTrumpsGame() {
             </div>
           )}
 
-          {/* Game Over */}
           {gameOver && (
             <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 backdrop-blur-md">
               <div className="bg-white rounded-3xl p-12 max-w-md text-center shadow-2xl border-4 border-amber-300 animate-scale-in">
@@ -544,7 +536,6 @@ export default function TopTrumpsGame() {
             </div>
           )}
 
-          {/* Round Result */}
           {roundResult && !gameOver && (
             <div className="text-center mb-8 animate-slide-down">
               <div className={`inline-block px-10 py-5 rounded-2xl font-bold text-3xl shadow-2xl ${
@@ -559,7 +550,6 @@ export default function TopTrumpsGame() {
             </div>
           )}
 
-          {/* Fight Button */}
           {showFightButton && !cardsRevealed && (
             <div className="text-center mb-8 animate-scale-in">
               <button
@@ -573,9 +563,7 @@ export default function TopTrumpsGame() {
             </div>
           )}
 
-          {/* Cards */}
           <div className="flex justify-center items-start gap-12 flex-wrap">
-            {/* Your Card */}
             <div className="text-center">
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl px-8 py-4 mb-6 inline-block shadow-xl border-4 border-blue-300">
                 <h3 className="text-white font-bold text-3xl drop-shadow-lg">
@@ -598,7 +586,6 @@ export default function TopTrumpsGame() {
               )}
             </div>
 
-            {/* VS Badge */}
             <div className="flex items-center justify-center pt-24">
               <div className="relative">
                 <div className="text-8xl font-black text-white drop-shadow-2xl animate-pulse-slow">VS</div>
@@ -610,7 +597,6 @@ export default function TopTrumpsGame() {
               </div>
             </div>
 
-            {/* Opponent Card */}
             <div className="text-center">
               <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-2xl px-8 py-4 mb-6 inline-block shadow-xl border-4 border-red-300">
                 <h3 className="text-white font-bold text-3xl drop-shadow-lg">
@@ -632,7 +618,6 @@ export default function TopTrumpsGame() {
             </div>
           </div>
 
-          {/* Instructions */}
           {isMyTurn && !gameOver && !readyToFight && (
             <div className="text-center mt-10 animate-bounce-gentle">
               <p className="text-white text-2xl font-bold bg-black/50 backdrop-blur-sm inline-block px-8 py-4 rounded-2xl shadow-xl border-2 border-white/40">
