@@ -6,12 +6,22 @@ import cors from 'cors';
 const app = express();
 app.use(cors());
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ status: 'Top Trumps server running!' });
+});
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
+    origin: process.env.FRONTEND_URL || "*",  // Accept from any origin in production
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  // Important for deployment
+  transports: ['websocket', 'polling'],
+  pingTimeout: 60000,
+  pingInterval: 25000
 });
 
 const rooms = new Map();
